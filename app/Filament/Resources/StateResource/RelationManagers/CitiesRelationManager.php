@@ -27,9 +27,9 @@ class CitiesRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('first_name')
+            ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\TextColumn::make('first_name'),
+                Tables\Columns\TextColumn::make('name'),
             ])
             ->filters([
                 //

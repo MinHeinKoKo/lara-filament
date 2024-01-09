@@ -34,6 +34,11 @@ class StateResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -97,7 +102,8 @@ class StateResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\CitiesRelationManager::class,
+            RelationManagers\EmployeesRelationManager::class
         ];
     }
 

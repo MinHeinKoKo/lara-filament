@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,7 +20,12 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
-
+        \App\Models\User::factory()->create([
+            'name' => 'Min Hein',
+            'email' => 'admin@gmail.com',
+            'password' => Hash::make("adminMINHEIN"),
+            'is_admin' => true
+        ]);
         $this->call([
             CountrySeeder::class,
             StateSeeder::class,

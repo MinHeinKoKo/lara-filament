@@ -1,32 +1,29 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\App\Resources;
 
-use App\Filament\Resources\EmployeeResource\Pages;
-use App\Filament\Resources\EmployeeResource\RelationManagers;
+use App\Filament\App\Resources\EmployeeResource\Pages;
+use App\Filament\App\Resources\EmployeeResource\RelationManagers;
 use App\Models\City;
-use App\Models\Department;
 use App\Models\Employee;
 use App\Models\State;
+use Filament\Facades\Filament;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
-use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Get;
 use Illuminate\Support\Collection;
-use Filament\Forms\Set;
-use Illuminate\Contracts\Support\Htmlable;
 
 class EmployeeResource extends Resource
 {
@@ -34,99 +31,71 @@ class EmployeeResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
-    public static ?string $navigationGroup = "Employee Management";
-
-    protected static ?string $recordTitleAttribute = "first_name";
-
-    public static function getGloballySearchableAttributes(): array
-    {
-        return ['first_name','last_name','middle_name'];
-    }
-
-//    public static function getGlobalSearchResultDetails(Modal $record): array
-//    {
-//        return [
-//            'Country' => $record->country->name,
-//        ];
-//    }
-
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
-
-    public static function getNavigationBadgeColor(): string|array|null
-    {
-        return 'warning';
-    }
-
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Section::make("User Name")
-            ->description("Put User infromation in here.")
-            ->schema([
-                TextInput::make('first_name')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('last_name')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('middle_name')
-                    ->required()
-                    ->maxLength(255),
-            ])->columns(3),
+                    ->description("Put User infromation in here.")
+                    ->schema([
+                        TextInput::make('first_name')
+                            ->required()
+                            ->maxLength(255),
+                        TextInput::make('last_name')
+                            ->required()
+                            ->maxLength(255),
+                        TextInput::make('middle_name')
+                            ->required()
+                            ->maxLength(255),
+                    ])->columns(3),
 
                 Section::make("User Address")
-            ->description("Put User address in here.")
-            ->schema([
-                TextInput::make('address')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('zip_code')
-                    ->required()
-                    ->maxLength(255),
-            ])->columns(2),
+                    ->description("Put User address in here.")
+                    ->schema([
+                        TextInput::make('address')
+                            ->required()
+                            ->maxLength(255),
+                        TextInput::make('zip_code')
+                            ->required()
+                            ->maxLength(255),
+                    ])->columns(2),
                 Section::make("RelationShip")
-                ->schema([
-                    Select::make('country_id')
-                        ->relationship('country','name')
-                        ->native(false)
-                        ->searchable()
-                        ->preload()
-                        ->afterStateUpdated(function (Set $set){
-                            $set('state_id', null);
-                            $set('city_id', null);
-                    })
-                        ->live()
-                        ->required(),
-                    Select::make('state_id')
-                        ->options(fn (Get $get): Collection => State::query()
-                        ->where('country_id',$get('country_id'))
-                        ->pluck('name','id'))
-                        ->native(false)
-                        ->searchable()
-                        ->afterStateUpdated(fn (Set $set) => $set('city_id', null))
-                        ->live()
-                        ->preload()
-                        ->required(),
-                    Select::make('city_id')
-                        ->options(fn (Get $get): Collection => City::query()
-                            ->where('state_id',$get('state_id'))
-                            ->pluck('name','id'))
-                        ->native(false)
-                        ->searchable()
-                        ->live()
-                        ->preload()
-                        ->required(),
-                    Select::make('department_id')
-                        ->relationship('department','name')
-                        ->native(false)
-                        ->searchable()
-                        ->preload()
-                        ->required(),
-                ])->columns(2),
+                    ->schema([
+                        Select::make('country_id')
+                            ->relationship('country','name')
+                            ->native(false)
+                            ->searchable()
+                            ->preload()
+                            ->afterStateUpdated(function (Set $set){
+                                $set('state_id', null);
+                                $set('city_id', null);
+                            })
+                            ->live()
+                            ->required(),
+                        Select::make('state_id')
+                            ->options(fn (Get $get): Collection => State::query()
+                                ->where('country_id',$get('country_id'))
+                                ->pluck('name','id'))
+                            ->native(false)
+                            ->searchable()
+                            ->afterStateUpdated(fn (Set $set) => $set('city_id', null))
+                            ->live()
+                            ->preload()
+                            ->required(),
+                        Select::make('city_id')
+                            ->options(fn (Get $get): Collection => City::query()
+                                ->where('state_id',$get('state_id'))
+                                ->pluck('name','id'))
+                            ->native(false)
+                            ->searchable()
+                            ->live()
+                            ->preload()
+                            ->required(),
+                        Select::make('department_id')
+                            ->relationship('department','name'
+                            ,modifyQueryUsing: fn(Builder $query) => $query->whereBelongsTo(Filament::getTenant())
+                            ),
+                    ])->columns(2),
                 Section::make("User date")
                     ->description("Put date information in here.")
                     ->schema([
@@ -137,7 +106,7 @@ class EmployeeResource extends Resource
                         DatePicker::make('date_of_hired')
                             ->native(false)
                             ->displayFormat('d/m/Y')
-                        ->required()
+                            ->required()
 //                        ->columnSpanFull(),
                     ])->columns(2),
             ]);
@@ -191,23 +160,11 @@ class EmployeeResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('Department')
-                ->relationship("department",'name')
-                ->searchable()
-                ->preload()
-                ->label("Filter By Department")
-                ->indicator('Department')
+                //
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
-                    ->successNotification(
-                        Notification::make()
-                            ->success()
-                            ->title('Employee deleted')
-                            ->body('Employee is deleted Successfully.')
-                    ),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -222,12 +179,12 @@ class EmployeeResource extends Resource
             \Filament\Infolists\Components\Section::make("Employee Information")
                 ->schema([
                     \Filament\Infolists\Components\Section::make("RelationShip")
-                    ->schema([
-                        TextEntry::make('country.name')->label('Country Name'),
-                        TextEntry::make('state.name')->label('State Name'),
-                        TextEntry::make('city.name')->label('City Name'),
-                        TextEntry::make('department.name')->label('Department Name'),
-                    ])->columns(2),
+                        ->schema([
+                            TextEntry::make('country.name')->label('Country Name'),
+                            TextEntry::make('state.name')->label('State Name'),
+                            TextEntry::make('city.name')->label('City Name'),
+                            TextEntry::make('department.name')->label('Department Name'),
+                        ])->columns(2),
                     \Filament\Infolists\Components\Section::make("Employee's Information")
                         ->schema([
                             TextEntry::make('first_name')->label('First Name'),
@@ -255,7 +212,7 @@ class EmployeeResource extends Resource
         return [
             'index' => Pages\ListEmployees::route('/'),
             'create' => Pages\CreateEmployee::route('/create'),
-//            'view' => Pages\ViewEmployee::route('/{record}'),
+            'view' => Pages\ViewEmployee::route('/{record}'),
             'edit' => Pages\EditEmployee::route('/{record}/edit'),
         ];
     }
