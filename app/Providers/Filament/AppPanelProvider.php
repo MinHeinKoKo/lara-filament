@@ -2,6 +2,8 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\App\Pages\Tenancy\EditTeamProfile;
+use App\Filament\App\Pages\Tenancy\RegisterTeam;
 use App\Models\Team;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -19,8 +21,6 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use App\Filament\App\Pages\Tenancy\RegisterTeam;
-use App\Filament\App\Pages\Tenancy\EditTeamProfile;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -70,9 +70,9 @@ class AppPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ])
-            ->tenant(Team::class , ownershipRelationship: 'team', slugAttribute: 'slug')
-            ->tenantRegistration(RegisterTeam::class)
-            ->tenantProfile(EditTeamProfile::class);
+            ]);
+//            ->tenant(Team::class , ownershipRelationship: 'team', slugAttribute: 'slug')
+//            ->tenantRegistration(RegisterTeam::class)
+//            ->tenantProfile(EditTeamProfile::class);
     }
 }
