@@ -70,9 +70,9 @@ class AppPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ])
-            ->tenant(Team::class , ownershipRelationship: 'team', slugAttribute: 'slug')
-            ->tenantRegistration(RegisterTeam::class)
-            ->tenantProfile(EditTeamProfile::class);
+            ]);
+//            ->tenant(Team::class , ownershipRelationship: 'team', slugAttribute: 'slug')
+//            ->tenantRegistration(RegisterTeam::class)
+//            ->tenantProfile(EditTeamProfile::class);
     }
 }
